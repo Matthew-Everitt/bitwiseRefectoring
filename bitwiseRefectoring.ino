@@ -10,7 +10,6 @@ SdFat SD;
 File sdFile;
 
 //Things it might be useful to extern in other files
-//block_t currentBlock;
 settings_t settings;
 bool SdPresent = false;
 
@@ -174,12 +173,6 @@ void setup() {
 		Serial.println("SD card initialization failed! SD will not be available");
 		SdPresent = false;
 	}
-
-
-	//for (byte i = 0; i < 5; i++) {
-	//	currentBlock.zeroPad[i] = '\0'; /*Zeropad is to allow a longer filename (due to conflicts), and to make sure that any buffer overflows are acceptably easy to debug*/
-	//}
-
 
 	pinMode(inputPin, INPUT);
 	pinMode(outputPin, OUTPUT);

@@ -4,9 +4,9 @@
 extern bool SdPresent; //in systemState
 extern settings_t settings;
 
-block_t currentBlock;
 
-void detokenise(block_t * block, File * file) {
+
+void namedFile::detokenise(block_t * block, File * file) {
 	byte * p = block->data;
 	byte * end = block->data + block->blockLength;
 
@@ -48,7 +48,7 @@ void detokenise(block_t * block, File * file) {
 	}
 }
 
-void tokenise(File * file) {}
+void namedFile::tokenise(File * file) {}
 
 
 
@@ -109,10 +109,17 @@ byte namedFile::calculateChecksum(block_t block) {
 	return (byte)(sum % 256);
 }
 
-/*Byte handling functions, maybe should be seperate file with header to include?*/
+/*Byte handling functions, maybe should be separate file with header to include?*/
 /********************************************************************************/
 
-bool namedFile::header(byte b) {
+
+namedFile::namedFile() {
+	for (byte i = 0; i < 5; i++) {
+		currentBlock.zeroPad[i] = '\0'; /*Zero pad is to allow a longer filename (due to conflicts), and to make sure that any buffer overflows are acceptably easy to debug*/
+	}
+}
+
+bool namedFile::header(namedFile * caller, byte b) {
 	static uint8_t count = 0;
 
 	/*The header is defined as 4 * 0x2A, so if we get anything else print a warning but ignore it*/
@@ -130,24 +137,24 @@ bool namedFile::header(byte b) {
 	}
 }
 
-bool namedFile::filename(byte b) {
+bool namedFile::filename(namedFile * caller, byte b) {
 	static byte pos = 0;
 	if (b == 0x0D) { /*End of file name marker*/
-		currentBlock.filename[pos] = '\0';
+		caller->currentBlock.filename[pos] = '\0';
 		Serial.print("Detected filename is \"");
-		Serial.print(currentBlock.filename);
+		Serial.print(caller->currentBlock.filename);
 		Serial.println("\"");
 		pos = 0;
 		return true;
 	} else {
-		currentBlock.filename[pos] = b;
+		caller->currentBlock.filename[pos] = b;
 		pos++;
 		return false;
 	}
 }
 
-bool namedFile::blockFlag(byte b) {
-	currentBlock.blockFlag.value = b;
+bool namedFile::blockFlag(namedFile * caller, byte b) {
+	caller->currentBlock.blockFlag.value = b;
 	return true;
 }
 
@@ -188,36 +195,36 @@ bool namedFile::save16bitNum(byte b, sixteenBit_t * target) {
 	return firstByte;
 }
 
-bool namedFile::blockNumber(byte b) {
+bool namedFile::blockNumber(namedFile * caller, byte b) {
 	//   Serial.println("blockNumber");
-	return save16bitNum(b, &(currentBlock.blockNumber));
+	return save16bitNum(b, &(caller->currentBlock.blockNumber));
 }
 
-bool namedFile::executionAddr(byte b) {
-	return save16bitNum(b, &(currentBlock.executionAddr));
+bool namedFile::executionAddr(namedFile * caller, byte b) {
+	return save16bitNum(b, &(caller->currentBlock.executionAddr));
 }
 
-bool namedFile::loadAddr(byte b) {
-	return save16bitNum(b, &(currentBlock.loadAddr));
+bool namedFile::loadAddr(namedFile * caller, byte b) {
+	return save16bitNum(b, &(caller->currentBlock.loadAddr));
 }
 
-bool namedFile::blockLength(byte b) {
-	currentBlock.blockLength = b;
-	Serial.print("Expecting "); Serial.print((uint8_t)currentBlock.blockLength); Serial.println(" + 1 bytes of data");
+bool namedFile::blockLength(namedFile * caller, byte b) {
+	caller->currentBlock.blockLength = b;
+	Serial.print("Expecting "); Serial.print((uint8_t)caller->currentBlock.blockLength); Serial.println(" + 1 bytes of data");
 	return true;
 }
 
-bool namedFile::checksum(byte b) {
-	currentBlock.checksum = b;
+bool namedFile::checksum(namedFile * caller, byte b) {
+	caller->currentBlock.checksum = b;
 	return true;
 }
 
-bool namedFile::data(byte b) {
+bool namedFile::data(namedFile * caller, byte b) {
 	static byte pos = 0;
-	currentBlock.data[pos] = b;
+	caller->currentBlock.data[pos] = b;
 	pos++;
 
-	if (pos == (byte)(currentBlock.blockLength + 1)) {
+	if (pos == (byte)(caller->currentBlock.blockLength + 1)) {
 		pos = 0;
 		return true;
 	}
@@ -229,55 +236,55 @@ bool namedFile::data(byte b) {
 bool namedFile::describeBlock(void) {
 	Serial.println("Things that I know about the thing :");
 	Serial.print("It is called \"");
-	Serial.print(currentBlock.filename);
+	Serial.print(this->currentBlock.filename);
 	Serial.println("\"");
 
 	Serial.print("The block flag is ");
-	Serial.print(currentBlock.blockFlag.value, BIN);
+	Serial.print(this->currentBlock.blockFlag.value, BIN);
 	Serial.println(", which tells us that :");
 	Serial.print("\tThis is ");
-	if (currentBlock.blockFlag.bits.notLastBlock == 1)  Serial.print("not ");
+	if (this->currentBlock.blockFlag.bits.notLastBlock == 1)  Serial.print("not ");
 	Serial.println("the last block");
 
 	Serial.print("\tThe block does ");
-	if (currentBlock.blockFlag.bits.containsData == 0)  Serial.print("not ");
+	if (this->currentBlock.blockFlag.bits.containsData == 0)  Serial.print("not ");
 	Serial.println("contain data.");
 
 	Serial.print("\tThis is ");
-	if (currentBlock.blockFlag.bits.notFirstBlock == 1)  Serial.print("not ");
+	if (this->currentBlock.blockFlag.bits.notFirstBlock == 1)  Serial.print("not ");
 	Serial.println("the first block");
 
 	Serial.print("\tSome random junk is ");
-	Serial.println(currentBlock.blockFlag.bits.undefinedBits, BIN);
+	Serial.println(this->currentBlock.blockFlag.bits.undefinedBits, BIN);
 
 	Serial.print("The block is number ");
-	Serial.println(currentBlock.blockNumber.value);
+	Serial.println(this->currentBlock.blockNumber.value);
 
 	Serial.print("The exec. addr. is 0x");
-	Serial.println(currentBlock.executionAddr.value, HEX);
+	Serial.println(this->currentBlock.executionAddr.value, HEX);
 
 	Serial.print("The load. addr. is 0x");
-	Serial.println(currentBlock.loadAddr.value, HEX);
+	Serial.println(this->currentBlock.loadAddr.value, HEX);
 
 	Serial.print("The data is ");
-	Serial.print(currentBlock.blockLength);
+	Serial.print(this->currentBlock.blockLength);
 	Serial.println(" bytes long");
 
 	Serial.print("The checksum is 0x");
-	Serial.println(currentBlock.checksum, HEX);
+	Serial.println(this->currentBlock.checksum, HEX);
 
 	Serial.print("\nWe calculate the checksum to be 0x");
-	Serial.println(calculateChecksum(currentBlock), HEX);
+	Serial.println(calculateChecksum(this->currentBlock), HEX);
 
 	Serial.print("\tThat's a difference of 0x");
-	Serial.println(calculateChecksum(currentBlock) ^ currentBlock.checksum, HEX);
+	Serial.println(calculateChecksum(this->currentBlock) ^ this->currentBlock.checksum, HEX);
 	Serial.println("\n");
 	return true;
 	Serial.println("DUMP:");
 	for (unsigned int i = 0; i < sizeof(block_t); i++) {
-		Serial.print(((char *)&currentBlock)[i]);
+		Serial.print(((char *)&(this->currentBlock))[i]);
 		Serial.print("\t\t");
-		Serial.println(((byte *)&currentBlock)[i], HEX);
+		Serial.println(((byte *)&(this->currentBlock))[i], HEX);
 	}
 
 	return false;
@@ -305,13 +312,13 @@ void namedFile::RX(byte b, String defaultFilename = "default.file") {
 	Serial.print("Out of function "); Serial.println(byteFunctionNames[pos]);
 #endif
 
-	if (function(b)) pos++;
+	if (function(this,b)) pos++;
 	if (nFunctions == pos) {
 		pos = 0;
 #ifdef reportFunctionCalls
 		Serial.print("Running function finishBlock");
 #endif
-		finishBlock(currentBlock);
+		finishBlock(this->currentBlock);
 #ifdef reportFunctionCalls
 		Serial.print("Out of function finishBlock");
 #endif
