@@ -21,8 +21,9 @@ bool inByte = false;
 bool newByte = false;
 byte recievedByte = 0;
 
-
-inline void underLengthInterval(unsigned long interval) {
+class threeHundredBaudCUTS {
+public:
+	inline void underLengthInterval(unsigned long interval) {
 #ifdef reportBadPeriods
 	Serial.print("Underlength interval of ");
 	Serial.print(interval);
@@ -59,11 +60,13 @@ inline void recordBit(frequency freq) {
 	if (!startBit && freq == 0) {
 		startBit = true;
 
-	} else if (startBit && count < 8) {
+		}
+		else if (startBit && count < 8) {
 		data |= (freq << count);
 		count++;
 
-	} else if (count == 8 && freq == 1) {
+		}
+		else if (count == 8 && freq == 1) {
 		/*Stop bit found, record and reset*/
 		//     Serial.println("Setting new byte");
 		recievedByte = data;
@@ -74,7 +77,8 @@ inline void recordBit(frequency freq) {
 		data = 0;
 		inByte = false;
 
-	} else {
+		}
+		else {
 		Serial.print("-");
 	}
 }
@@ -97,7 +101,8 @@ inline void registerNote(frequency freq) {
 			recordBit(freq);
 			count = 0;
 		}
-	} else {
+		}
+		else {
 #ifdef reportFreqChanges
 		if (count != 0) {
 			Serial.print("Freq change from ");
@@ -140,11 +145,11 @@ void recordChange(void) {
 #define window      ((int)100.0)         /*Tolerance, must be within +- window to count */
 
 	/*I hate if ladders, but it does seem to be the right thing here*/
-	if (shortPeriod - window > interval)                                    	underLengthInterval(interval);
+		if (shortPeriod - window > interval)                                    	underLengthInterval(interval);
 	else if (shortPeriod - window <= interval && interval < shortPeriod + window) 	registerNote(highFreq);
 	else if (shortPeriod + window <= interval && interval < longPeriod - window) 	registerNote(transitionFreq);
 	else if (longPeriod - window <= interval && interval < longPeriod + window) 	registerNote(lowFreq);
-	else if (longPeriod + window < interval)                                    	overLengthInterval(interval);
+		else if (longPeriod + window < interval)                                    	overLengthInterval(interval);
 	else unknownInterval(interval);
 
 	previous = current;
@@ -157,6 +162,17 @@ void carrierLost(void) {
 #ifdef reportCarrierState
 	Serial.println("Carrier lost");
 #endif
+}
+};
+
+
+threeHundredBaudCUTS cuts;
+
+void cutsInputPinISR(void) {
+	cuts.recordChange();
+}
+void cutsCarrierLostISR(void) {
+	cuts.carrierLost();
 }
 
 
@@ -175,18 +191,19 @@ void setup() {
 
 	if (SD.begin(chipSelect)) {
 		SdPresent = true;
-	} else {
+	}
+	else {
 		Serial.println("SD card initialization failed! SD will not be available");
 		SdPresent = false;
 	}
 
 	pinMode(inputPin, INPUT);
 	pinMode(outputPin, OUTPUT);
-	attachInterrupt(inputPin, recordChange, CHANGE);
+	attachInterrupt(inputPin, cutsInputPinISR, CHANGE);
 
 	/*Use carrierTimer to detect the absence of a carrier, which would allow us to go into sleep mode, or whatever*/
 	carrierTimer.initialize(833 * 50); /*Delay in microseconds - 833 microseconds is the longest period (1/1200Hz), so 50 times that is a reasonable number of events not happening*/
-	carrierTimer.attachInterrupt(carrierLost);
+	carrierTimer.attachInterrupt(cutsCarrierLostISR);
 	//carrierTimer.start();
 }
 
