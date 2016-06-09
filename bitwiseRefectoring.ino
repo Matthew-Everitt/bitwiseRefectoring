@@ -22,7 +22,7 @@ bool newByte = false;
 byte recievedByte = 0;
 
 
-	inline void underLengthInterval(unsigned long interval) {
+inline void underLengthInterval(unsigned long interval) {
 #ifdef reportBadPeriods
 	Serial.print("Underlength interval of ");
 	Serial.print(interval);
@@ -117,7 +117,13 @@ inline void registerNote(frequency freq) {
 	//Serial.println((uint8_t)freq);
 }
 
+//Change this to use a global object, which can define the periods, and what to do in each case. Then have can change that object, either reference or properties, to define the properties of the comms channel, allowing us to easily handle different formats / datarates etc.
 
+//Actually possibly better to make this a property of said object, with the interface looking a little like:
+
+// recordChange(void) called by ISR
+// a property bool newByte indicating the presence of a new byte
+// a property byte value containing the new value
 void recordChange(void) {
 	digitalWrite(outputPin, HIGH);
 	carrierTimer.restart();
@@ -131,21 +137,21 @@ void recordChange(void) {
 	/*We actually count both edges, so use 0.5 rather than one. The reason for this is to allow counting half bits*/
 #define longPeriod  ((int)(0.5e6/1200.0))  /*Period of the low frequency in microseconds  */
 #define shortPeriod ((int)(0.5e6/2400.0))  /*Period of the high frequency in microseconds */
-#define window      ((int)100.0)         /*Tolerence, must be within +- window to count */
+#define window      ((int)100.0)         /*Tolerance, must be within +- window to count */
 
 	/*I hate if ladders, but it does seem to be the right thing here*/
-	if (shortPeriod - window >  interval)                                    	underLengthInterval(interval);
+	if (shortPeriod - window > interval)                                    	underLengthInterval(interval);
 	else if (shortPeriod - window <= interval && interval < shortPeriod + window) 	registerNote(highFreq);
 	else if (shortPeriod + window <= interval && interval < longPeriod - window) 	registerNote(transitionFreq);
 	else if (longPeriod - window <= interval && interval < longPeriod + window) 	registerNote(lowFreq);
-	else if (longPeriod + window <  interval)                                    	overLengthInterval(interval);
+	else if (longPeriod + window < interval)                                    	overLengthInterval(interval);
 	else unknownInterval(interval);
 
 	previous = current;
 }
 
 void carrierLost(void) {
-	/* The timer has expired which means we've not had an intertupt recently. This is probably a good time to flush data out etc*/
+	/* The timer has expired which means we've not had an interrupt recently. This is probably a good time to flush data out etc*/
 	carrierTimer.stop();
 	carrierPresent = false;
 #ifdef reportCarrierState
