@@ -63,12 +63,18 @@
     <ClInclude Include="systemState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="300BaudCUTS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileTools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="namedFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="300BaudCUTS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

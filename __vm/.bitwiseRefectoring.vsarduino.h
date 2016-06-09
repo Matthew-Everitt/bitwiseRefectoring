@@ -13,10 +13,9 @@
 #define __HARDWARE_MK20dx256__
 #define __HARDWARE_MK20DX256__
 #define __MK20DX256__
-#define TEENSYDUINO 126
-#define ARDUINO 10606
-#define F_CPU 96000000
-#define ARDUINO_ARCH_AVR
+#define TEENSYDUINO 128
+#define ARDUINO 10608
+#define F_CPU 72000000
 #define USB_SERIAL
 #define LAYOUT_US_ENGLISH
 #define __cplusplus 201103L
@@ -31,7 +30,6 @@ typedef void *__builtin_va_list;
 #define __inline__
 #define __asm__ 
 #define __volatile__
-#define _HAVE_STDC
 
 #define NEW_H
 
@@ -58,6 +56,8 @@ typedef void *__builtin_va_list;
 
 #define NEW_H
 #include <bitwiseRefectoring.ino>
+#include <300BaudCUTS.cpp>
+#include <300BaudCUTS.h>
 #include <FileTools.cpp>
 #include <FileTools.h>
 #include <common.h>

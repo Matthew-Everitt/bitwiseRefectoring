@@ -34,12 +34,7 @@ typedef uint8_t byte;
 typedef uint8_t bit;
 
 
-typedef enum frequencies {
-	lowFreq = 0,
-	highFreq = 1,
-	transitionFreq,
-	unknownFreq,
-} frequency;
+
 
 class format {
 public:
