@@ -44,6 +44,10 @@ public:
 
 	//Indicates that there is space in the transmit buffer.
 	bool bufferAvaliable = false;
+
+	//Enter a byte into the transmit queue
+	//Returns true if ok, false if unable to send for whatever reason
+	bool sendByte(byte b);
 	
 	//CUTS related settings, must be set by the user, preferably in the constructor of an inheriting class.
 	CutsSettings settings;

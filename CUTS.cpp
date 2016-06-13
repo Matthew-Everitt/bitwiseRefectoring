@@ -116,6 +116,10 @@ void CUTS::recordChange(void) {
 	previous = current;
 }
 
+bool CUTS::sendByte(byte b) {
+	return false;
+}
+
 
 //void carrierLost(void) {
 //	/* The timer has expired which means we've not had an interrupt recently. This is probably a good time to flush data out etc*/
