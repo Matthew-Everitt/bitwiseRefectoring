@@ -45,13 +45,13 @@ void cutsInputPinISR(void) {
 //}
 
 void updateCUTS(void){
-	if (cuts->newByte) {
+	if (cuts->newByteAvaliable) {
 #ifdef rawBytes
 		Serial.print("rawByte,");
 		Serial.println(recievedByte, HEX);
 #endif
 		f->RX(cuts->data);
-		cuts->newByte = false;
+		cuts->newByteAvaliable = false;
 	}
 }
 
