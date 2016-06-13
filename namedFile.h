@@ -4,10 +4,11 @@
 #include "Arduino.h"
 #include "FileTools.h"
 
+#include "storageInterface.h"
 
 
 
-class namedFile : public format {
+class namedFile : public storageInterface {
 	//Probably generic enough to go into some other class / namespace
 	typedef struct {
 		byte low;

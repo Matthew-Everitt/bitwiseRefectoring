@@ -1,9 +1,15 @@
 #include <TimerOne.h>
 
 #include "common.h"
-#include "namedFile.h"
+
 #include "FileTools.h"
+
+#include "computerInterface.h"
 #include "300BaudCUTS.h"
+
+#include "storageInterface.h"
+#include "namedFile.h"
+
 
 #include <SdFat.h>
 #include <SdSpi.h>
@@ -17,22 +23,37 @@ bool SdPresent = false;
 
 
 
-bool carrierPresent = false;
+//bool carrierPresent = false;
 
 
-bool newByte = false;
-byte recievedByte = 0;
+//bool newByte = false;
+//byte recievedByte = 0;
 
 
 
-threeHundredBaudCUTS cuts;
+threeHundredBaudCUTS thb;
+computerInterface *cuts= &thb;
+
+namedFile named;
+storageInterface * f = &named;
 
 void cutsInputPinISR(void) {
-	cuts.recordChange();
+	cuts->recordChange();
 }
 //void cutsCarrierLostISR(void) {
 //	cuts.carrierLost();
 //}
+
+void updateCUTS(void){
+	if (cuts->newByte) {
+#ifdef rawBytes
+		Serial.print("rawByte,");
+		Serial.println(recievedByte, HEX);
+#endif
+		f->RX(cuts->data);
+		cuts->newByte = false;
+	}
+}
 
 
 void setup() {
@@ -63,22 +84,12 @@ void setup() {
 	//carrierTimer.initialize(833 * 50); /*Delay in microseconds - 833 microseconds is the longest period (1/1200Hz), so 50 times that is a reasonable number of events not happening*/
 	//carrierTimer.attachInterrupt(cutsCarrierLostISR);
 	////carrierTimer.start();
+
 }
 
 
-namedFile named;
-format * f = &named;
+
 void loop() {
-	digitalWrite(outputPin, LOW);
-	if (newByte) {
-#ifdef rawBytes
-		Serial.print("rawByte,");
-		Serial.println(recievedByte, HEX);
-#endif
-		f->RX(recievedByte, "");
-
-		newByte = false;
-
-	}
+	updateCUTS();
 
 }

@@ -26,7 +26,7 @@
 #include "debugLevels.h"
 
 
-#define carrierTimer Timer1
+//#define carrierTimer Timer1
 
 
 extern SdFat SD;
@@ -36,11 +36,6 @@ typedef uint8_t bit;
 
 
 
-class format {
-public:
-	virtual void RX(byte b, String defaultFilename) = 0; //We receive data from the Atom one byte at a time
-	virtual void TX(File * file) = 0; //But we might as well send an entire file at once.
-};
 
 
 //typedef struct {

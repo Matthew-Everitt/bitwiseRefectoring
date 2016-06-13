@@ -58,9 +58,12 @@ typedef void *__builtin_va_list;
 #include <bitwiseRefectoring.ino>
 #include <300BaudCUTS.cpp>
 #include <300BaudCUTS.h>
+#include <CUTS.cpp>
+#include <CUTS.h>
 #include <FileTools.cpp>
 #include <FileTools.h>
 #include <common.h>
+#include <computerInterface.h>
 #include <debounce.h>
 #include <debugLevels.h>
 #include <fileMenu.h>
@@ -73,5 +76,6 @@ typedef void *__builtin_va_list;
 #include <normalMenu.h>
 #include <pinout.h>
 #include <settingsMenu.h>
+#include <storageInterface.h>
 #include <systemState.h>
 #endif

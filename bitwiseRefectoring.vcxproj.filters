@@ -66,6 +66,15 @@
     <ClInclude Include="300BaudCUTS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="computerInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="storageInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CUTS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileTools.cpp">
@@ -75,6 +84,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="300BaudCUTS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CUTS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

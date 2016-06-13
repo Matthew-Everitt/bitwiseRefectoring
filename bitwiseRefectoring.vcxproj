@@ -74,9 +74,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3;C:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\avr;C:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\util;C:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\utils;C:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\avr;C:\Users\User\Dropbox\sketchbook\bitwiseRefectoring;C:\Users\User\Dropbox\sketchbook\libraries\SdFat;C:\Users\User\Dropbox\sketchbook\libraries\SdFat\utility;C:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries\TimerOne;C:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries\TimerOne\utility;C:\Program Files (x86)\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\cxmmk3xn.cn0\Micro Platforms\default\debuggers;C:\Users\User\Dropbox\sketchbook\libraries;C:\Program Files (x86)\Arduino\hardware\hardware\include;C:\Program Files (x86)\Arduino\hardware\Arduino\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3;C:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\avr;C:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\util;C:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\utils;C:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy3\avr;C:\Users\User\Dropbox\sketchbook\bitwiseRefectoring;C:\Users\User\Dropbox\sketchbook\libraries\SdFat;C:\Users\User\Dropbox\sketchbook\libraries\SdFat\utility;C:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries\TimerOne;C:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries\TimerOne\utility;C:\Program Files (x86)\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\cxmmk3xn.cn0\Micro Platforms\default\debuggers;C:\Users\User\Dropbox\sketchbook\libraries;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>C:\Users\User\Dropbox\sketchbook\bitwiseRefectoring\__vm\.bitwiseRefectoring.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PreprocessorDefinitions>__HARDWARE_MK20dx256__;__HARDWARE_MK20DX256__;__MK20DX256__;TEENSYDUINO=128;ARDUINO=10608;F_CPU=72000000;USB_SERIAL;LAYOUT_US_ENGLISH;__cplusplus=201103L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ShowIncludes>true</ShowIncludes>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -126,7 +127,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="300BaudCUTS.h" />
+    <ClInclude Include="computerInterface.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="CUTS.h" />
     <ClInclude Include="debounce.h" />
     <ClInclude Include="debugLevels.h" />
     <ClInclude Include="fileMenu.h" />
@@ -139,11 +142,13 @@
     <ClInclude Include="normalMenu.h" />
     <ClInclude Include="pinout.h" />
     <ClInclude Include="settingsMenu.h" />
+    <ClInclude Include="storageInterface.h" />
     <ClInclude Include="systemState.h" />
     <ClInclude Include="__vm\.bitwiseRefectoring.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="300BaudCUTS.cpp" />
+    <ClCompile Include="CUTS.cpp" />
     <ClCompile Include="FileTools.cpp" />
     <ClCompile Include="namedFile.cpp" />
   </ItemGroup>
