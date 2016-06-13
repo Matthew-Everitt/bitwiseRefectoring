@@ -33,9 +33,18 @@ private:
 
 
 public:
+	//Called by the ISR
 	void recordChange(void);
-	bool newByteAvaliable = false;;
-	bool sending = false;;
+
+	//Indicates that a byte has been received and is ready to be processed.
+	bool newByteAvaliable = false;
+	//The value of said received byte.
 	byte data;
+
+
+	//Indicates that there is space in the transmit buffer.
+	bool bufferAvaliable = false;
+	
+	//CUTS related settings, must be set by the user, preferably in the constructor of an inheriting class.
 	CutsSettings settings;
 };
