@@ -48,6 +48,9 @@ public:
 	//Enter a byte into the transmit queue
 	//Returns true if ok, false if unable to send for whatever reason
 	bool sendByte(byte b);
+
+	//Inform the interface that the file being sent has ended. Ideally this will also be detected with a timeout, but why rely on that?
+	void endTransmission();
 	
 	//CUTS related settings, must be set by the user, preferably in the constructor of an inheriting class.
 	CutsSettings settings;

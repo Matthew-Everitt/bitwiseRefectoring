@@ -17,4 +17,7 @@ public:
 	//Returns true if ok, false if unable to send for whatever reason
 
 	virtual bool sendByte(byte b) = 0;
+
+	//Inform the interface that the file being sent has ended. Ideally this will also be detected with a timeout, but why rely on that?
+	virtual void endTransmission() = 0;
 };
