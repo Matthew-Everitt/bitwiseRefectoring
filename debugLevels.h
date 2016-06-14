@@ -1,10 +1,8 @@
 #pragma once
 
-// #define chatty
-#define reportFunctionCalls
-#define reportBlockDetails
 
 
+//#define verboseCUTS
 #ifdef verboseCUTS //All options for the CUTS interface, hopefully reasonably self explanatory
 #define detailedChecksum
 #define rawBytes
@@ -14,8 +12,12 @@
 #define reportBlockDetails
 #define reportCarrierState
 #define verboseFile
+#define reportNewBytes
 #define reportRawBits
+#define reportInputStateChange
 #endif
+
+
 
 #ifdef verboseTimings //Timing benchmarks
 #define verboseDisplayTime

@@ -1,5 +1,5 @@
 #pragma once
-class computerInterface {
+class ComputerInterface {
 public:
 	//Called by the ISR
 	virtual void recordChange(void) = 0;

@@ -31,27 +31,25 @@ bool SdPresent = false;
 
 
 
-threeHundredBaudCUTS thb;
-computerInterface *cuts= &thb;
+threeHundredBaudCUTS thb(inputPin, outputPin);
+ComputerInterface *computerInterface = &thb;
 
 namedFile named;
 storageInterface * f = &named;
 
-void cutsInputPinISR(void) {
-	cuts->recordChange();
-}
+
 //void cutsCarrierLostISR(void) {
 //	cuts.carrierLost();
 //}
 
-void updateCUTS(void){
-	if (cuts->newByteAvaliable) {
+void updateComputerInterface(void) {
+	if (computerInterface->newByteAvaliable) {
 #ifdef rawBytes
 		Serial.print("rawByte,");
-		Serial.println(recievedByte, HEX);
+		Serial.println(computerInterface->data, HEX);
 #endif
-		f->RX(cuts->data);
-		cuts->newByteAvaliable = false;
+		f->RX(computerInterface->data);
+		computerInterface->newByteAvaliable = false;
 	}
 }
 
@@ -76,20 +74,18 @@ void setup() {
 		SdPresent = false;
 	}
 
-	pinMode(inputPin, INPUT);
-	pinMode(outputPin, OUTPUT);
-	attachInterrupt(inputPin, cutsInputPinISR, CHANGE);
+
 
 	///*Use carrierTimer to detect the absence of a carrier, which would allow us to go into sleep mode, or whatever*/
 	//carrierTimer.initialize(833 * 50); /*Delay in microseconds - 833 microseconds is the longest period (1/1200Hz), so 50 times that is a reasonable number of events not happening*/
 	//carrierTimer.attachInterrupt(cutsCarrierLostISR);
 	////carrierTimer.start();
-
+	//computerInterface->sendByte(123);
 }
 
 
 
 void loop() {
-	updateCUTS();
-
+	updateComputerInterface();
+	//delay(100);
 }

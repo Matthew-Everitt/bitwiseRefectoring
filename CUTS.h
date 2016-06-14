@@ -2,7 +2,11 @@
 #pragma once
 #include "common.h"
 #include "computerInterface.h"
-class CUTS : public virtual computerInterface {
+#include <IntervalTimer.h>
+
+extern ComputerInterface *computerInterface; //We sadly need to have 
+
+class CUTS : public virtual ComputerInterface {
 private:
 
 	typedef enum frequencies {
@@ -31,27 +35,38 @@ private:
 	inline void recordBit(frequency freq);
 	inline void registerNote(frequency freq);
 
+	IntervalTimer txTimer;
+	bool timerRunning = false; //Because IntervalTimer is too mean to let us see its status.
 
+
+	class ISRhelper_t {
+	public:
+		static void outputISR();
+		static void inputISR();
+		//static CUTS * caller;
+	} ISRhelper;
 public:
-	//Called by the ISR
+	CUTS(pin inputPin, pin outputPin);
+
+	////Called by the ISR
 	void recordChange(void);
 
-	//Indicates that a byte has been received and is ready to be processed.
-	bool newByteAvaliable = false;
-	//The value of said received byte.
-	byte data;
+	////Indicates that a byte has been received and is ready to be processed.
+	//bool newByteAvaliable = false;
+	////The value of said received byte.
+	//byte data;
 
 
-	//Indicates that there is space in the transmit buffer.
-	bool bufferAvaliable = false;
+	////Indicates that there is space in the transmit buffer.
+	//bool bufferAvaliable = false;
 
-	//Enter a byte into the transmit queue
-	//Returns true if ok, false if unable to send for whatever reason
+	////Enter a byte into the transmit queue
+	////Returns true if ok, false if unable to send for whatever reason
 	bool sendByte(byte b);
 
-	//Inform the interface that the file being sent has ended. Ideally this will also be detected with a timeout, but why rely on that?
+	////Inform the interface that the file being sent has ended. Ideally this will also be detected with a timeout, but why rely on that?
 	void endTransmission();
-	
+	//
 	//CUTS related settings, must be set by the user, preferably in the constructor of an inheriting class.
 	CutsSettings settings;
 };

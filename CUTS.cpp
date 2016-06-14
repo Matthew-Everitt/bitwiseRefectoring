@@ -1,4 +1,5 @@
 #include "CUTS.h"
+#include "debugLevels.h"
 inline void CUTS::underLengthInterval(unsigned long interval) {
 #ifdef reportBadPeriods
 	Serial.print("Underlength interval of ");
@@ -45,7 +46,9 @@ inline void CUTS::recordBit(frequency freq) {
 		//     Serial.println("Setting new byte");
 		this->data = data;
 		this->newByteAvaliable = true;
-
+#ifdef reportNewBytes
+		Serial.print("CUTS has found a byte :  0x"); Serial.println(this->data, HEX);
+#endif
 		startBit = false;
 		count = 0;
 		data = 0;
@@ -94,6 +97,12 @@ inline void CUTS::registerNote(frequency freq) {
 	//Serial.println((uint8_t)freq);
 }
 
+CUTS::CUTS(pin inputPin, pin outputPin) {
+	pinMode(inputPin, INPUT);
+	pinMode(outputPin, OUTPUT);
+	attachInterrupt(inputPin, this->ISRhelper.inputISR, CHANGE);
+}
+
 void CUTS::recordChange(void) {
 	digitalWrite(outputPin, HIGH);
 	//carrierTimer.restart();
@@ -104,6 +113,9 @@ void CUTS::recordChange(void) {
 	unsigned long current = micros();
 	int interval = (current - previous);
 
+#ifdef reportInputStateChange
+	Serial.print("Input pin changed after "); Serial.print(interval); Serial.println("us");
+#endif
 
 	/*I hate if ladders, but it does seem to be the right thing here*/
 	if (settings.HighFreqPeriod - settings.window > interval)                                    	underLengthInterval(interval);
@@ -117,10 +129,18 @@ void CUTS::recordChange(void) {
 }
 
 bool CUTS::sendByte(byte b) {
-	return false;
+
+	if (!timerRunning) {
+		//this->txISRhelper.caller = this;
+		txTimer.begin(this->ISRhelper.outputISR, 100000);
+	}
+	return true;
 }
 
-void CUTS::endTransmission() {}
+void CUTS::endTransmission() {
+	txTimer.end();
+	bufferAvaliable = true;
+}
 
 
 //void carrierLost(void) {
@@ -132,3 +152,10 @@ void CUTS::endTransmission() {}
 //#endif
 //}
 
+void CUTS::ISRhelper_t::outputISR() {
+	Serial.println("ISR");
+}
+
+void CUTS::ISRhelper_t::inputISR() {
+	computerInterface->recordChange();
+}

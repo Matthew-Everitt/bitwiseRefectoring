@@ -32,7 +32,7 @@
 extern SdFat SD;
 typedef uint8_t byte;
 typedef uint8_t bit;
-
+typedef uint8_t pin;
 
 
 

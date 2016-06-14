@@ -1,6 +1,6 @@
 #include "300BaudCUTS.h"
 
-threeHundredBaudCUTS::threeHundredBaudCUTS() {
+threeHundredBaudCUTS::threeHundredBaudCUTS(pin inputPin, pin outputPin) : CUTS(inputPin, outputPin) {
 	settings.cyclesInLowFreqSymbol = 8;
 	settings.cyclesInHighFreqSymbol = 16;
 
