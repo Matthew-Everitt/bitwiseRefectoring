@@ -8,14 +8,12 @@ extern ComputerInterface *computerInterface; //We sadly need to have
 
 class CUTS : public virtual ComputerInterface {
 private:
-
 	typedef enum frequencies {
 		lowFreq = 0,
 		highFreq = 1,
 		transitionFreq,
 		unknownFreq,
 	} frequency;
-
 	typedef struct {
 		uint8_t cyclesInLowFreqSymbol = 0;
 		uint8_t cyclesInHighFreqSymbol = 0;
@@ -36,20 +34,29 @@ private:
 	inline void registerNote(frequency freq);
 
 	IntervalTimer txTimer;
-	bool timerRunning = false; //Because IntervalTimer is too mean to let us see its status.
-
+	bool timerRunning = false; // Because IntervalTimer is too mean to let us see its status.
 
 	class ISRhelper_t {
 	public:
 		static void outputISR();
 		static void inputISR();
-		//static CUTS * caller;
 	} ISRhelper;
+
+	frequency nextBit(); // Return the frequency value corresponding to the next thing we need to send
+	void stopTxTimer();
+	bool nextByte(); // Update the byte buffer. Returns the buffer state (true if more data ready, false if there's nothing in the queue and we should check the end state).
+
+	byte currentByte;
+	bool dataToSend = false;
+	byte bufferByte;
+	bool endRequested = false;
+
 public:
 	CUTS(pin inputPin, pin outputPin);
 
 	////Called by the ISR
 	void recordChange(void);
+	void toggleOutput(void);
 
 	////Indicates that a byte has been received and is ready to be processed.
 	//bool newByteAvaliable = false;

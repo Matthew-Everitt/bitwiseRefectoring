@@ -56,7 +56,7 @@ void updateComputerInterface(void) {
 
 void setup() {
 	Serial.begin(115200);
-	while (!Serial);
+	//while (!Serial);
 
 	//SdFat library only supports this if SD_SPI_CONFIGURATION is set to 1 in SdFatConfig.h
 	SPI.setMOSI(sdMOSI);
@@ -80,12 +80,23 @@ void setup() {
 	//carrierTimer.initialize(833 * 50); /*Delay in microseconds - 833 microseconds is the longest period (1/1200Hz), so 50 times that is a reasonable number of events not happening*/
 	//carrierTimer.attachInterrupt(cutsCarrierLostISR);
 	////carrierTimer.start();
-	//computerInterface->sendByte(123);
 }
 
 
 
 void loop() {
 	updateComputerInterface();
-	//delay(100);
+	delay(100);
+
+	char * data = "Hello, world!";
+	int l = strlen(data);
+
+	for (int i = 0; i < l; i++) {
+		Serial.println(i);
+		while (!computerInterface->sendByte(data[i])) { 
+			 delay(10);
+		}
+	}
+	computerInterface->endTransmission();
+	delay(250);
 }

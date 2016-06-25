@@ -3,6 +3,7 @@ class ComputerInterface {
 public:
 	//Called by the ISR
 	virtual void recordChange(void) = 0;
+	virtual void toggleOutput(void) = 0;
 
 	//Indicates that a byte has been received and is ready to be processed.
 	bool newByteAvaliable = false;

@@ -1,8 +1,9 @@
 #include "CUTS.h"
 #include "debugLevels.h"
+
 inline void CUTS::underLengthInterval(unsigned long interval) {
 #ifdef reportBadPeriods
-	Serial.print("Underlength interval of ");
+	Serial.print("Under length interval of ");
 	Serial.print(interval);
 	Serial.println(" microseconds found");
 #endif
@@ -11,7 +12,7 @@ inline void CUTS::underLengthInterval(unsigned long interval) {
 inline void CUTS::overLengthInterval(unsigned long interval) {
 #ifdef reportBadPeriods
 
-	Serial.print("Overlength interval of ");
+	Serial.print("Over length interval of ");
 	Serial.print(interval);
 	Serial.println(" microseconds found");
 #endif
@@ -129,19 +130,58 @@ void CUTS::recordChange(void) {
 }
 
 bool CUTS::sendByte(byte b) {
-
+	//TODO: Check buffer status (or wait for it to be free), feed byte b into queue.
 	if (!timerRunning) {
-		//this->txISRhelper.caller = this;
-		txTimer.begin(this->ISRhelper.outputISR, 100000);
+		//Serial.println("Starting timer");
+		txTimer.begin(this->ISRhelper.outputISR, this->settings.HighFreqPeriod);
 	}
-	return true;
+
+	if (!dataToSend) {
+		currentByte = b;
+		dataToSend = true;
+		return true;
+	}
+
+	//Blocking, need to make this optional
+	if (bufferAvaliable) {
+		bufferByte = b;
+		bufferAvaliable = false;
+		return true;
+	}
+
+	return false;
 }
 
 void CUTS::endTransmission() {
-	txTimer.end();
-	bufferAvaliable = true;
+	this->endRequested = true;
 }
 
+void CUTS::toggleOutput() {
+	static bool dataCrossing = false;
+	static byte cyclesDone = 0;
+	static byte cyclesNeeded = 4;
+	static bool toggleOnDataCrossings;
+
+	if (cyclesDone == cyclesNeeded) {
+		switch (nextBit()) {
+		case highFreq:
+			//cyclesNeeded = this->settings.cyclesInHighFreqSymbol/2;
+			toggleOnDataCrossings = true;
+			break;
+		case lowFreq:
+			//cyclesNeeded = this->settings.cyclesInLowFreqSymbol;
+			toggleOnDataCrossings = false;
+			break;
+		}
+		cyclesDone = 0;
+	}
+
+	if (!dataCrossing || toggleOnDataCrossings)
+		digitalWriteFast(outputPin, !digitalReadFast(outputPin));
+
+	if (dataCrossing) cyclesDone++;
+	dataCrossing = !dataCrossing;
+}
 
 //void carrierLost(void) {
 //	/* The timer has expired which means we've not had an interrupt recently. This is probably a good time to flush data out etc*/
@@ -152,9 +192,73 @@ void CUTS::endTransmission() {
 //#endif
 //}
 
-void CUTS::ISRhelper_t::outputISR() {
-	Serial.println("ISR");
+CUTS::frequency CUTS::nextBit() {
+	static byte bitsSent = 0;
+	static bool startBitSent = false;
+	static bool stopBitSent = false;
+
+	if (!this->dataToSend) { //We have no data, so send just the carrier.
+		return highFreq;
+	} else if (!startBitSent) {
+		startBitSent = true;
+		return lowFreq;
+	} else if (bitsSent < 8) {
+		//Send next bit;
+		bool value = (currentByte >> bitsSent) & 1;
+		bitsSent++;
+		return (frequency)value;
+
+	} else { //Send stop bit and reset for the next byte
+		if (!nextByte()) { //We need to call nextByte to move onto the next byte. If it returns false we've run out of data and need to question if we should stop.
+			if (endRequested) {
+				if (!stopBitSent) { //We need to end, but we've not sent a stop bit, so we should, you know, do that.
+					stopBitSent = true; 
+					Serial.println("Stop bit");
+					this->dataToSend = true;
+					return highFreq;
+				} else {
+					//Reset for next byte
+					startBitSent = false;
+					bitsSent = 0;
+					stopBitSent = false;
+					stopTxTimer();
+					return highFreq; //Not that it matters
+				}
+			}
+		} else {
+			//Reset for next byte
+			startBitSent = false;
+			bitsSent = 0;
+			return highFreq;
+		}
+	}
 }
+void CUTS::stopTxTimer() {
+	Serial.println("End");
+
+	txTimer.end();
+	this->timerRunning = false;
+
+	endRequested = false;
+	digitalWrite(outputPin, HIGH);
+}
+bool CUTS::nextByte() {
+	//Serial.println("NextByte");
+	if (bufferAvaliable) {
+		dataToSend = false;
+		return false;
+	} else {
+		currentByte = bufferByte;
+		dataToSend = true;
+		bufferAvaliable = true;
+		return true;
+	}
+}
+
+void CUTS::ISRhelper_t::outputISR() {
+	computerInterface->toggleOutput();
+}
+
 
 void CUTS::ISRhelper_t::inputISR() {
 	computerInterface->recordChange();
