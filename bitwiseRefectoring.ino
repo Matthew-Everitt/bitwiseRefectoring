@@ -1,5 +1,14 @@
+#include <Encoder.h>
+#include <U8glib.h>
+#include <SPI.h>
+#include <SdSpiCard.h>
+#include <SdInfo.h>
+#include <SdFatUtil.h>
+#include <SdFatmainpage.h>
+#include <SdFatConfig.h>
+#include <MinimumSerial.h>
 #include <TimerOne.h>
-#define chattyCUTS
+#define chattyCUT
 #include "common.h"
 
 #include "FileTools.h"
@@ -88,8 +97,8 @@ void loop() {
 	static byte i = 0;
 	updateComputerInterface();
 
-	computerInterface->sendByte(i);
-	delay(500);
-	Serial.print("I is 0x"); Serial.print(i, HEX);
-	i++;
+	//computerInterface->sendByte(i);
+	//delay(500);
+	////Serial.print("I is 0x"); Serial.print(i, HEX);
+	//i++;
 }

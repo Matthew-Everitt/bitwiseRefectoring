@@ -165,7 +165,7 @@ void CUTS::endTransmission() {
 void CUTS::toggleOutput() {
 	static bool dataCrossing = false;
 	static byte cyclesDone = 0;
-	static byte cyclesNeeded = 4;
+	static byte cyclesNeeded = 8;
 	static bool toggleOnDataCrossings;
 
 	if (cyclesDone == cyclesNeeded) {

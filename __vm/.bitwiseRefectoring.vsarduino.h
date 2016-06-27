@@ -13,11 +13,12 @@
 #define __HARDWARE_MK20dx256__
 #define __HARDWARE_MK20DX256__
 #define __MK20DX256__
-#define TEENSYDUINO 128
-#define ARDUINO 10608
+#define TEENSYDUINO 126
+#define ARDUINO 10606
 #define F_CPU 72000000
+#define ARDUINO_ARCH_AVR
 #define USB_SERIAL
-#define LAYOUT_US_ENGLISH
+#define LAYOUT_UNITED_KINGDOM
 #define __cplusplus 201103L
 #define __arm__
 #define __ARM__
@@ -30,6 +31,7 @@ typedef void *__builtin_va_list;
 #define __inline__
 #define __asm__ 
 #define __volatile__
+#define _HAVE_STDC
 
 #define NEW_H
 
