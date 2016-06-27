@@ -1,6 +1,8 @@
 #pragma once
-
-
+#define reportRawBits
+#define reportNewBytes
+#define rawBytes
+#define reportInputStateChange
 
 //#define verboseCUTS
 #ifdef verboseCUTS //All options for the CUTS interface, hopefully reasonably self explanatory

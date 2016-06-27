@@ -12,7 +12,7 @@ public:
 
 
 	//Indicates that there is space in the transmit buffer.
-	bool bufferAvaliable = false;
+	bool bufferAvaliable = true;
 
 	//Enter a byte into the transmit queue
 	//Returns true if ok, false if unable to send for whatever reason

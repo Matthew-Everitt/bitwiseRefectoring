@@ -1,5 +1,5 @@
 #include <TimerOne.h>
-
+#define chattyCUTS
 #include "common.h"
 
 #include "FileTools.h"
@@ -56,8 +56,8 @@ void updateComputerInterface(void) {
 
 void setup() {
 	Serial.begin(115200);
-	//while (!Serial);
-
+	while (!Serial);
+	delay(1000);
 	//SdFat library only supports this if SD_SPI_CONFIGURATION is set to 1 in SdFatConfig.h
 	SPI.setMOSI(sdMOSI);
 	SPI.setMISO(sdMISO);
@@ -85,18 +85,11 @@ void setup() {
 
 
 void loop() {
+	static byte i = 0;
 	updateComputerInterface();
-	delay(100);
 
-	char * data = "Hello, world!";
-	int l = strlen(data);
-
-	for (int i = 0; i < l; i++) {
-		Serial.println(i);
-		while (!computerInterface->sendByte(data[i])) { 
-			 delay(10);
-		}
-	}
-	computerInterface->endTransmission();
-	delay(250);
+	computerInterface->sendByte(i);
+	delay(500);
+	Serial.print("I is 0x"); Serial.print(i, HEX);
+	i++;
 }

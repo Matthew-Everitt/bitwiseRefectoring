@@ -130,26 +130,32 @@ void CUTS::recordChange(void) {
 }
 
 bool CUTS::sendByte(byte b) {
-	//TODO: Check buffer status (or wait for it to be free), feed byte b into queue.
-	if (!timerRunning) {
-		//Serial.println("Starting timer");
-		txTimer.begin(this->ISRhelper.outputISR, this->settings.HighFreqPeriod);
-	}
+	bool ret = false;
+
+
 
 	if (!dataToSend) {
 		currentByte = b;
 		dataToSend = true;
-		return true;
+		ret= true;
 	}
 
-	//Blocking, need to make this optional
 	if (bufferAvaliable) {
+		Serial.print("Adding 0x"); Serial.println(b);
 		bufferByte = b;
 		bufferAvaliable = false;
-		return true;
+		ret= true;
+	} else {
+		Serial.println("Buffer full");
+		ret = false;
+	}
+	if (!(this->timerRunning)) {
+		Serial.println("Starting timer");
+		this->timerRunning = true;
+		txTimer.begin(this->ISRhelper.outputISR, this->settings.HighFreqPeriod);
 	}
 
-	return false;
+	return ret;
 }
 
 void CUTS::endTransmission() {
@@ -163,6 +169,7 @@ void CUTS::toggleOutput() {
 	static bool toggleOnDataCrossings;
 
 	if (cyclesDone == cyclesNeeded) {
+		Serial.println("Next");
 		switch (nextBit()) {
 		case highFreq:
 			//cyclesNeeded = this->settings.cyclesInHighFreqSymbol/2;
@@ -176,9 +183,12 @@ void CUTS::toggleOutput() {
 		cyclesDone = 0;
 	}
 
-	if (!dataCrossing || toggleOnDataCrossings)
+	if (!dataCrossing || toggleOnDataCrossings) {
+		Serial.println("toggle");
 		digitalWriteFast(outputPin, !digitalReadFast(outputPin));
-
+	} else {
+		Serial.println("Don't toggle");
+	}
 	if (dataCrossing) cyclesDone++;
 	dataCrossing = !dataCrossing;
 }
@@ -196,15 +206,18 @@ CUTS::frequency CUTS::nextBit() {
 	static byte bitsSent = 0;
 	static bool startBitSent = false;
 	static bool stopBitSent = false;
-
+	Serial.print("Next bit is ");
 	if (!this->dataToSend) { //We have no data, so send just the carrier.
+		Serial.println("Carrier");
 		return highFreq;
 	} else if (!startBitSent) {
+		Serial.println("Start");
 		startBitSent = true;
 		return lowFreq;
 	} else if (bitsSent < 8) {
 		//Send next bit;
 		bool value = (currentByte >> bitsSent) & 1;
+		Serial.print("bit "); Serial.print(bitsSent); Serial.print(" of 0b"); Serial.print(currentByte, BIN); Serial.print(" ("); Serial.print(value); Serial.println(")");
 		bitsSent++;
 		return (frequency)value;
 
@@ -213,7 +226,7 @@ CUTS::frequency CUTS::nextBit() {
 			if (endRequested) {
 				if (!stopBitSent) { //We need to end, but we've not sent a stop bit, so we should, you know, do that.
 					stopBitSent = true; 
-					Serial.println("Stop bit");
+					Serial.println("Stop");
 					this->dataToSend = true;
 					return highFreq;
 				} else {
@@ -224,11 +237,15 @@ CUTS::frequency CUTS::nextBit() {
 					stopTxTimer();
 					return highFreq; //Not that it matters
 				}
+			} else {
+				//No next byte to send so pump out the carrier
+				return highFreq;
 			}
 		} else {
 			//Reset for next byte
 			startBitSent = false;
 			bitsSent = 0;
+			//Send the stop bit for the previous byte
 			return highFreq;
 		}
 	}
@@ -243,11 +260,13 @@ void CUTS::stopTxTimer() {
 	digitalWrite(outputPin, HIGH);
 }
 bool CUTS::nextByte() {
-	//Serial.println("NextByte");
+	Serial.print("NextByte :  ");
 	if (bufferAvaliable) {
 		dataToSend = false;
+		Serial.println("Carrier");
 		return false;
 	} else {
+		Serial.print("0x"); Serial.println(bufferByte);
 		currentByte = bufferByte;
 		dataToSend = true;
 		bufferAvaliable = true;
